@@ -6,9 +6,10 @@
     public class Program
     {
         /// <summary>
-        /// Находит редактора издания по названию.
-        /// Если издание или редактор не найдены — возвращает null.
+        /// Находит редактора издания по названию
+        /// Если издание или редактор не найдены — возвращает null
         /// </summary>
+        /// 
         static Editor FindEditor(List<Edition> editions, List<Editor> editors, string title)
         {
             Edition found = null;
@@ -35,8 +36,8 @@
         }
 
         /// <summary>
-        /// Находит отдел издания.
-        /// Если отдел не найден — возвращает null.
+        /// Находит отдел издания
+        /// Если отдел не найден — возвращает null
         /// </summary>
         static Department FindDepartment(List<Department> departments, Edition edition)
         {
@@ -54,11 +55,12 @@
         }
 
         /// <summary>
-        /// Суммарное число страниц всех изданий.
-        /// Для пустого списка возвращает 0.
+        /// Суммарное число страниц всех изданий
+        /// Для пустого списка возвращает 0
         /// </summary>
-        static int GetTotalPages(List<Edition> editions)
+        static int GetTotalPages(List<Edition>? editions)
         {
+            if (editions is null) return 0;
             int total = 0;
             for (int i = 0; i < editions.Count; i++)
             {
@@ -68,14 +70,14 @@
         }
 
         /// <summary>
-        /// Редактор с максимальным суммарным числом страниц.
-        /// При равенстве — первый в списке редакторов.
-        /// Если изданий нет — возвращает null.
+        /// Редактор с максимальным суммарным числом страниц
+        /// При равенстве — первый в списке редакторов
+        /// Если изданий нет - возвращает null
         /// </summary>
         static Editor GetEditorWithMostPages(List<Edition> editions, List<Editor> editors)
         {
-            if (editions == null || editions.Count == 0) return null;
-            if (editors == null || editors.Count == 0) return null;
+            if (editions is null || editions.Count == 0) return null;
+            if (editors is null || editors.Count == 0) return null;
 
             int bestEditorId = -1;
             int bestTotal = -1;
@@ -90,8 +92,6 @@
                         sum += editions[j].Pages;
                     }
                 }
-
-                // строгое ">" — при равенстве первый остаётся лидером
                 if (sum > bestTotal)
                 {
                     bestTotal = sum;
@@ -134,10 +134,10 @@
         /// </summary>
         static void PrintAllEditions(List<Edition> editions, List<Editor> editors, List<Department> departments)
         {
+            if (editions == null || editors == null || departments == null) return;
             for (int i = 0; i < editions.Count; i++)
             {
                 Edition e = editions[i];
-
                 Editor editor = null;
                 for (int j = 0; j < editors.Count; j++)
                 {
@@ -157,15 +157,15 @@
                         break;
                     }
                 }
-
                 string editorName = editor != null ? editor.FullName : "—";
                 string depName = dep != null ? dep.Name : "—";
-
                 Console.WriteLine("\"" + e.GetInfo() + "\" - редактор " + editorName + ", отдел \"" + depName + "\"");
             }
         }
 
-        /// <summary>Точка входа в программу</summary>
+        /// <summary>
+        /// Точка входа в программу
+        /// </summary>
         static internal void Main()
         {
             Console.WriteLine("Выберите источник данных:");
@@ -178,38 +178,47 @@
             List<Department> departments;
             List<Editor> editors;
             List<Edition> editions;
-
-            switch (choice)
+            try
             {
-                case 1:
-                    InMemoryRepository mem = new InMemoryRepository();
-                    departments = mem.GetDepartments();
-                    editors = mem.GetEditors();
-                    editions = mem.GetEditions();
-                    break;
+                switch (choice)
+                {
+                    case 1:
 
-                case 2:
-                    CsvRepository csv = new CsvRepository("data");
-                    departments = csv.GetDepartments();
-                    editors = csv.GetEditors();
-                    editions = csv.GetEditions();
-                    break;
 
-                default:
-                    Console.WriteLine("Неверный выбор");
-                    return;
+
+                        InMemoryRepository mem = new InMemoryRepository();
+                        departments = mem.GetDepartments();
+                        editors = mem.GetEditors();
+                        editions = mem.GetEditions();
+                        break;
+
+                    case 2:
+
+                        CsvRepository csv = new CsvRepository("data");
+                        departments = csv.GetDepartments();
+                        editors = csv.GetEditors();
+                        editions = csv.GetEditions();
+
+                        break;
+
+                    default:
+                        Console.WriteLine("Неверный выбор");
+                        return;
+                }
             }
-
+            catch (Exception ex)
+            {
+                Console.WriteLine("Файл не найден: " + ex.Message);
+                return;
+            }
             Console.WriteLine();
 
-            // 1. FindEditor("Тихий Дон")
             Editor editor = FindEditor(editions, editors, "Тихий Дон");
             if (editor != null)
                 Console.WriteLine("1. FindEditor(\"Тихий Дон\"): " + editor.GetInfo());
             else
                 Console.WriteLine("1. FindEditor(\"Тихий Дон\"): null");
 
-            // 2. FindDepartment для издания "Тихий Дон"
             Edition target = null;
             for (int i = 0; i < editions.Count; i++)
             {
@@ -225,11 +234,10 @@
                 Console.WriteLine("2. FindDepartment(edition \"Тихий Дон\"): " + dep.GetInfo());
             else
                 Console.WriteLine("2. FindDepartment(edition \"Тихий Дон\"): null");
+            Console.WriteLine();
 
-            // 3. Суммарное число страниц
             Console.WriteLine("3. GetTotalPages: " + GetTotalPages(editions));
 
-            // 4. Редактор с макс. числом страниц
             Editor top = GetEditorWithMostPages(editions, editors);
             if (top != null)
             {
@@ -241,11 +249,9 @@
                 Console.WriteLine("4. GetEditorWithMostPages: null");
             }
 
-            // 5. Вывод всех изданий
             Console.WriteLine("5. PrintAllEditions:");
             PrintAllEditions(editions, editors, departments);
 
-            // Проверка «не найдено»
             Console.WriteLine();
             Editor missing = FindEditor(editions, editors, "Неизвестное издание");
             if (missing != null)

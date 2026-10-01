@@ -1,11 +1,11 @@
 ﻿namespace PrintingHouse;
 
-internal class Edition
+public class Edition
 {
     /// <summary>
     /// Идентификатор издания
     /// </summary>
-    public int Id { get; set; }
+    public int Id { get; }
 
     /// <summary>
     /// Название издания уник
@@ -25,7 +25,23 @@ internal class Edition
     /// <summary>
     /// Количество страниц
     /// </summary>
-    public int Pages { get; set; }
+    private int _pages;
+
+    public int Pages
+    {
+        get { return _pages; }
+        set
+        {
+            if (value <= 0)
+            {
+                throw new ArgumentOutOfRangeException(nameof(_pages), "Amount of withdrawal must be positive");
+            }
+            else
+            {
+                _pages = value;
+            }
+        }
+    }
 
     /// <summary>
     /// Цена издания (руб.)
@@ -37,9 +53,9 @@ internal class Edition
     /// </summary>
     public bool IsThick
     {
-        get 
-        { 
-            return Pages > 500; 
+        get
+        {
+            return Pages > 500;
         }
     }
 
@@ -61,5 +77,9 @@ internal class Edition
     public string GetInfo()
     {
         return Title + " (" + Pages + " стр., " + Price + " руб.)";
+    }
+    public Edition(int id)
+    {
+        Id = id;
     }
 }

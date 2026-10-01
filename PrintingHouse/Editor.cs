@@ -6,7 +6,7 @@ public class Editor
     /// <summary>
     /// Идентификатор редактора
     /// </summary>
-    public int Id { get; set; }
+    public int Id { get; }
 
     /// <summary>
     /// ФИО редактора (не уникально)
@@ -40,5 +40,9 @@ public class Editor
     public string GetInfo()
     {
         return FullName + " (" + Experience + " лет опыта)";
+    }
+    public Editor(int id)
+    {
+        Id = id;
     }
 }

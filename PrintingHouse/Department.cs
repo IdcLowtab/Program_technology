@@ -1,11 +1,11 @@
 ﻿namespace PrintingHouse;
 
-internal class Department
-{
+public class Department
+{         
     /// <summary>
     /// Идентификатор отдела
     /// </summary>
-    public int Id { get; set; }
+    public int Id { get; }
 
     /// <summary>
     /// Название отдела уник
@@ -31,5 +31,9 @@ internal class Department
     public string GetInfo()
     {
         return Name + " (зав.: " + Head + ")";
+    }
+    public Department(int id)
+    {
+        Id = id;
     }
 }
